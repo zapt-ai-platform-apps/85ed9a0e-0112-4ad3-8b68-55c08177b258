@@ -1,25 +1,36 @@
 {
-    "name": "reactjs-vite-tailwind-vercel",
+    "name": "nyc-bar-lines",
     "version": "1.0.0",
-    "description": "ReactJS app with Vite, Tailwind",
+    "description": "App that tells you the wait times for lines for every bar in New York City",
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "vitest run && vite build",
         "serve": "vite preview",
-        "start": "vite --host"
+        "start": "vite --host",
+        "test": "vitest"
     },
     "dependencies": {
         "@sentry/browser": "^8.41.0",
+        "@sentry/node": "^8.41.0",
+        "date-fns": "^2.30.0",
+        "drizzle-orm": "^0.33.0",
+        "postgres": "^3.4.5",
         "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react-dom": "^18.2.0",
+        "react-icons": "^5.0.1",
+        "react-router-dom": "^6.21.3"
     },
     "devDependencies": {
+        "@testing-library/react": "^14.1.2",
+        "@testing-library/user-event": "^14.5.2",
         "@vitejs/plugin-react": "^4.3.4",
+        "@sentry/vite-plugin": "^2.23.0",
         "autoprefixer": "^10.4.20",
+        "jsdom": "^22.1.0",
         "postcss": "^8.4.47",
         "tailwindcss": "^3.4.13",
         "vite": "^5.4.7",
-        "@sentry/vite-plugin": "^2.23.0"
+        "vitest": "^1.2.1"
     }
 }
