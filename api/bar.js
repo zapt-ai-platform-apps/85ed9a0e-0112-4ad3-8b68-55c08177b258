@@ -8,7 +8,9 @@ export default async function handler(req, res) {
     console.log('Bar API called with method:', req.method);
     
     if (req.method === 'GET') {
-      const { id } = req.query;
+      // Extract query parameters from URL
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const id = url.searchParams.get('id');
       
       if (!id) {
         return res.status(400).json({ error: 'Bar ID is required' });
@@ -39,7 +41,7 @@ export default async function handler(req, res) {
       
       res.status(200).json({
         ...barDetails[0],
-        waitTimes: recentWaitTimes
+        waitTimes: recentWaitTimes || [] // Ensure waitTimes is always an array
       });
     } else {
       res.status(405).json({ error: 'Method not allowed' });

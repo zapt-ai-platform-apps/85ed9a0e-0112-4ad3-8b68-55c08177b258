@@ -31,6 +31,12 @@ const useBarDetail = (barId) => {
         
         const data = await response.json();
         console.log('Bar details:', data);
+        
+        // Ensure waitTimes is always an array
+        if (!Array.isArray(data.waitTimes)) {
+          data.waitTimes = [];
+        }
+        
         setBar(data);
         setError(null);
       } catch (error) {

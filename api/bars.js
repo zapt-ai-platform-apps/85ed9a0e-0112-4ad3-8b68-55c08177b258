@@ -11,8 +11,9 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const db = getDbClient();
       
-      // Get query parameters
-      const neighborhood = req.query.neighborhood || null;
+      // Extract query parameters from URL
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const neighborhood = url.searchParams.get('neighborhood');
       
       // Subquery to get the latest wait time for each bar
       const latestWaitTimes = db.$with('latest_wait_times').as(
