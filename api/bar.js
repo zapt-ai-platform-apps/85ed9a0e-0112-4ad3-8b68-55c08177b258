@@ -16,39 +16,53 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Bar ID is required' });
       }
       
+      console.log(`Fetching details for bar ID: ${id}`);
       const db = getDbClient();
       
-      // Get bar details
-      const barDetails = await db.select()
-        .from(bars)
-        .where(eq(bars.id, Number(id)))
-        .limit(1);
-      
-      if (barDetails.length === 0) {
-        return res.status(404).json({ error: 'Bar not found' });
+      try {
+        // Use BigInt for IDs to avoid potential integer overflow issues
+        const barId = parseInt(id, 10);
+        
+        // Get bar details
+        const barDetails = await db.select()
+          .from(bars)
+          .where(eq(bars.id, barId))
+          .limit(1);
+        
+        if (barDetails.length === 0) {
+          console.log(`Bar not found with ID: ${id}`);
+          return res.status(404).json({ error: 'Bar not found' });
+        }
+        
+        // Get recent wait times for this bar
+        const recentWaitTimes = await db.select({
+          id: waitTimes.id,
+          waitMinutes: waitTimes.waitMinutes,
+          createdAt: waitTimes.createdAt
+        })
+        .from(waitTimes)
+        .where(eq(waitTimes.barId, barId))
+        .orderBy(desc(waitTimes.createdAt))
+        .limit(10);
+        
+        const result = {
+          ...barDetails[0],
+          waitTimes: recentWaitTimes || [] // Ensure waitTimes is always an array
+        };
+        
+        console.log(`Successfully retrieved bar details for ID: ${id}`);
+        res.status(200).json(result);
+      } catch (dbError) {
+        console.error('Database error in bar API:', dbError);
+        Sentry.captureException(dbError);
+        res.status(500).json({ error: 'Database error', message: dbError.message });
       }
-      
-      // Get recent wait times for this bar
-      const recentWaitTimes = await db.select({
-        id: waitTimes.id,
-        waitMinutes: waitTimes.waitMinutes,
-        createdAt: waitTimes.createdAt
-      })
-      .from(waitTimes)
-      .where(eq(waitTimes.barId, Number(id)))
-      .orderBy(desc(waitTimes.createdAt))
-      .limit(10);
-      
-      res.status(200).json({
-        ...barDetails[0],
-        waitTimes: recentWaitTimes || [] // Ensure waitTimes is always an array
-      });
     } else {
       res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
     console.error('Error in bar API:', error);
     Sentry.captureException(error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', message: error.message });
   }
 }

@@ -9,7 +9,13 @@ export function getDbClient() {
       throw new Error('Missing database connection string');
     }
     
-    const client = postgres(connectionString);
+    // Configure the postgres client with proper error handling
+    const client = postgres(connectionString, {
+      idle_timeout: 20,
+      max_lifetime: 60 * 30,
+      connect_timeout: 10
+    });
+    
     return drizzle(client);
   } catch (error) {
     console.error('Database connection error:', error);
